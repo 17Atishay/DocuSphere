@@ -174,6 +174,7 @@ with st.sidebar:
     # Clear Chat
     if st.button("🗑️ Clear Chat History"):
         st.session_state.chat_history = []
+        st.session_state.summary = None
         st.rerun()
 
     # Reset Knowledge Base
@@ -255,9 +256,6 @@ with col1:
                         summary = get_summary(st.session_state.raw_content)
                     st.session_state.summary = summary
 
-                if "summary" in st.session_state and st.session_state.summary:
-                    with st.expander("📋 Document Summary", expanded=True):
-                        st.markdown(st.session_state.summary)
 
     # ── RESEARCH MODE ──
     elif "Research" in mode:
@@ -305,9 +303,6 @@ with col1:
                         summary = get_summary(st.session_state.raw_content)
                     st.session_state.summary = summary
 
-            if "summary" in st.session_state and st.session_state.summary:
-                with st.expander("📋 Research Summary", expanded=True):
-                    st.markdown(st.session_state.summary)
 
 with col2:
     # ── CHAT INTERFACE ──
@@ -339,27 +334,27 @@ with col2:
         question = st.chat_input("Ask anything about your knowledge base...")
 
         if question:
-            # Add user message to history
             st.session_state.chat_history.append({
                 "role": "user",
                 "content": question
             })
-
-            # Get answer
             with st.spinner("🤔 Thinking..."):
                 answer = query_and_answer(
                     question,
                     st.session_state.current_index,
                     st.session_state.current_mode
                 )
-
-            # Add AI response to history
             st.session_state.chat_history.append({
                 "role": "assistant",
                 "content": answer
             })
-
             st.rerun()
+
+        # ── SUMMARY BELOW CHAT ──
+        if "summary" in st.session_state and st.session_state.summary:
+            st.divider()
+            with st.expander("📋 Summary", expanded=False):
+                st.markdown(st.session_state.summary)
 
 # ─────────────────────────────────────────────
 # FOOTER
