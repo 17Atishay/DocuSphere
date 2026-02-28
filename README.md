@@ -307,6 +307,10 @@ Open your browser at `http://localhost:8501` — DocuSphere is ready!
 5. Ask questions in the chat box on the right
 6. Optionally click **📝 Summarize Document** for a quick overview
 
+![Random_pdf_QA](Screenshots/Random_pdf_QA.png)
+![Random_pdf_Summary](Screenshots/Random_pdf_Summary.png)
+
+
 ### Mode 2 — Research Mode
 1. Select **🔍 Research Mode** from the sidebar
 2. Type any topic (e.g., "Quantum Computing", "Climate Change")
@@ -314,6 +318,9 @@ Open your browser at `http://localhost:8501` — DocuSphere is ready!
 4. DocuSphere automatically fetches Wikipedia + web content
 5. Ask questions in the chat box once research is complete
 6. Optionally click **📝 Summarize Research** for an overview
+
+![Drone_QA](Screenshots/Drone_QA.png)
+![Drone_Summary](Screenshots/Drone_Summary.png)
 
 ---
 
