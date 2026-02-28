@@ -95,6 +95,9 @@ if "current_source" not in st.session_state:
 if "raw_content" not in st.session_state:
     st.session_state.raw_content = None
 
+if "summary" not in st.session_state:
+    st.session_state.summary = None
+
 
 # ─────────────────────────────────────────────
 # HELPER FUNCTIONS
@@ -150,6 +153,9 @@ with st.sidebar:
 
     # Endee Status
     st.markdown("### 🗄️ Endee Vector DB Status")
+    @st.cache_data(ttl=5)
+    def get_indexes():
+        return list_indexes()
     try:
         indexes = list_indexes()
         st.markdown('<p class="status-success">● Connected</p>', unsafe_allow_html=True)
@@ -177,6 +183,7 @@ with st.sidebar:
         st.session_state.current_source = None
         st.session_state.raw_content = None
         st.session_state.chat_history = []
+        st.session_state.summary = None    # Add this line
         st.rerun()
 
 # ─────────────────────────────────────────────
@@ -193,11 +200,17 @@ with col1:
         uploaded_file = st.file_uploader(
             "Choose a file",
             type=["pdf", "docx"],
-            help="Supported formats: PDF, DOCX"
+            help="Supported formats: PDF, DOCX | Max size: 10MB"
         )
 
+        # File size check (10MB limit)
         if uploaded_file:
-            st.success(f"✅ File received: `{uploaded_file.name}`")
+            file_size_mb = uploaded_file.size / (1024 * 1024)
+            if file_size_mb > 10:
+                st.error(f"❌ File too large ({file_size_mb:.1f}MB). Maximum allowed size is 10MB.")
+                st.stop()
+            else:
+                st.success(f"✅ File received: `{uploaded_file.name}` ({file_size_mb:.1f}MB)")
 
             col_a, col_b = st.columns(2)
 
@@ -240,8 +253,11 @@ with col1:
                 if st.session_state.raw_content and st.button("📝 Summarize Document", use_container_width=True):
                     with st.spinner("✍️ Generating summary..."):
                         summary = get_summary(st.session_state.raw_content)
-                    st.markdown("### 📋 Document Summary")
-                    st.markdown(summary)
+                    st.session_state.summary = summary
+
+                if "summary" in st.session_state and st.session_state.summary:
+                    with st.expander("📋 Document Summary", expanded=True):
+                        st.markdown(st.session_state.summary)
 
     # ── RESEARCH MODE ──
     elif "Research" in mode:
@@ -285,10 +301,13 @@ with col1:
 
         with col_b:
             if st.session_state.raw_content and st.button("📝 Summarize Research", use_container_width=True):
-                with st.spinner("✍️ Generating summary..."):
-                    summary = get_summary(st.session_state.raw_content)
-                st.markdown("### 📋 Research Summary")
-                st.markdown(summary)
+                    with st.spinner("✍️ Generating summary..."):
+                        summary = get_summary(st.session_state.raw_content)
+                    st.session_state.summary = summary
+
+            if "summary" in st.session_state and st.session_state.summary:
+                with st.expander("📋 Research Summary", expanded=True):
+                    st.markdown(st.session_state.summary)
 
 with col2:
     # ── CHAT INTERFACE ──

@@ -4,7 +4,7 @@
 
 import fitz  # PyMuPDF
 from docx import Document
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from typing import List, Dict
 import os
 
@@ -17,17 +17,26 @@ text_splitter = RecursiveCharacterTextSplitter(
 )
 
 
-def extract_text_from_pdf(file_path: str) -> str:
-    """Extract all text from a PDF file using PyMuPDF."""
+def extract_text_from_pdf(file_path: str, max_pages: int = 50) -> str:
+    """Extract text from PDF. Max 50 pages to keep performance stable."""
     text = ""
     try:
         doc = fitz.open(file_path)
-        for page_num, page in enumerate(doc):
+        total_pages = len(doc)
+
+        if total_pages > max_pages:
+            print(f"[DocProcessor] Document has {total_pages} pages. Processing first {max_pages} only.")
+
+        pages_to_process = min(total_pages, max_pages)
+
+        for page_num in range(pages_to_process):
+            page = doc[page_num]
             page_text = page.get_text()
             if page_text.strip():
                 text += f"\n[Page {page_num + 1}]\n{page_text}"
+
         doc.close()
-        print(f"[DocProcessor] Extracted text from {len(doc)} pages.")
+        print(f"[DocProcessor] Extracted text from {pages_to_process}/{total_pages} pages.")
     except Exception as e:
         print(f"[DocProcessor] PDF extraction error: {e}")
     return text
@@ -89,9 +98,14 @@ def process_document(file_path: str) -> Dict:
     # Chunk the text
     chunks = chunk_text(raw_text)
 
+    # Safety cap — max 500 chunks to keep Endee fast
+    # and embedding time under control
+    if len(chunks) > 500:
+        print(f"[DocProcessor] Capping chunks from {len(chunks)} to 500.")
+        chunks = chunks[:500]
+
     # Build metadata for each chunk
-    # This metadata gets stored alongside vectors in Endee
-    # so when retrieved, we know what text it came from
+    # Stored alongside vectors in Endee so we know the source on retrieval
     metadata = [
         {
             "text": chunk,

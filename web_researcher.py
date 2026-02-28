@@ -5,7 +5,7 @@
 
 from duckduckgo_search import DDGS
 import wikipedia
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from typing import List, Dict
 import time
 
