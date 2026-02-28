@@ -1,4 +1,6 @@
 .env
+DocuSphereVenv/
 __pycache__/
 *.pyc
 .streamlit/
+1.4.0

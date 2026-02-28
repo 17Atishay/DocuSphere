@@ -19,8 +19,7 @@ python-docx>=1.1.2
 
 # Web Research
 duckduckgo-search>=7.3.0
-wikipedia>=1.9.1
-
+wikipedia>=1.4.0
 # Utilities
 python-dotenv>=1.0.1
 requests>=2.32.0
